@@ -27,5 +27,5 @@ jobs:
         - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
     - stage: answers
       script:
-        - python HW2/main.py
-        - python HW2/hl7_parser.py
+        - python -m HW2.main
+        - python -m HW2.hl7_parser
