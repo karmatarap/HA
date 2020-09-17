@@ -6,7 +6,9 @@ HL7 format
 Example: MSH is usually the name of the first segment, “messageheader”
 • Segment consists of fields, separated with | (“pipe”)
 """
-from typing import List
+import datetime
+import numpy as np
+from typing import List, Union
 
 
 def hl7_to_dict(hl7_text: str) -> dict:
@@ -23,14 +25,18 @@ def hl7_to_dict(hl7_text: str) -> dict:
     )
 
 
-def extract_sex(hl7_dict) -> str:
+def extract_sex(hl7_dict: dict) -> str:
     "Returns Sex stored in field 7 of PID"
     return hl7_dict["PID"][7]
 
 
-def extract_dob(hl7_dict) -> str:
+def extract_dob(hl7_dict) -> Union[datetime.datetime, str]:
     "Returns DOB stored in field 6 of PID"
-    return hl7_dict["PID"][6]
+    dob = hl7_dict["PID"][6]
+    try:
+        return datetime.datetime.strptime(dob, "%Y%m%d")
+    except ValueError:
+        return ""
 
 
 if __name__ == "__main__":
