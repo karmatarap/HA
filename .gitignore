@@ -1,0 +1,13 @@
+*.zip
+*.py[co]
+.vscode
+
+coverage.xml
+.coverage
+htmlcov
+*.pyc
+*.pdf
+*.doc
+__pycache__
+.*_cache
+Clinical_HL7_Samples

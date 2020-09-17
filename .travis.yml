@@ -1,0 +1,31 @@
+# Config file for automatic testing at travis-ci.org
+env:
+  global:
+    - CC_TEST_REPORTER_ID=b6b34caee09128ce94ebde8593fb864335b5990b6e866d2efa1c7bdd7c7a518e
+
+language: python
+dist: xenial
+python:
+  - 3.7
+
+stages:
+  - test
+  - name: answers
+    if: branch = master
+
+jobs:
+  include:
+    - stage: test
+      install:
+        - pipenv install --dev --ignore-pipfile --deploy
+      before_script: # code coverage tool
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+      script: pytest --cov-report xml --cov-report term
+      after_script:
+        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+    - stage: answers
+      script:
+        - python HW2/main.py
+        - python HW2/hl7_parser.py
