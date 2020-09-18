@@ -57,13 +57,13 @@ class HL7:
         return self.hl7_dict["PID"][7]
 
     @property
-    def dob(self) -> Union[datetime.date, str]:
+    def dob(self) -> Union[datetime.date, None]:
         "Returns DOB stored in field 6 of PID"
         dob = self.hl7_dict["PID"][6]
         try:
             return datetime.datetime.strptime(dob, "%Y%m%d").date()
         except ValueError:
-            return ""
+            return None
 
 
 if __name__ == "__main__":
