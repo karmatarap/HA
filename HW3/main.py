@@ -1,5 +1,7 @@
 from pathlib import Path
+import logging
 from datetime import datetime, timedelta, time
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,6 +23,7 @@ class FacilityTimes:
 
     @staticmethod
     def _validate(df) -> None:
+        "Checks whether dataset follows expected structure"
         req_cols = ("stMRN", "dtArrive", "dtBegin", "dtCompleted")
         if not all(col in df.columns for col in req_cols):
             raise AttributeError(
@@ -29,7 +32,7 @@ class FacilityTimes:
 
     @staticmethod
     def add_date_features(df: pd.DataFrame) -> pd.DataFrame:
-        """Add Date Features of interest: 
+        """ Add Date Features of interest: 
         Add Durations between visits
         Split datetimes to date and time portions
         """
@@ -101,6 +104,8 @@ class FacilityTimes:
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(level=logging.INFO)
     # Read in data
     this_dir = Path(__file__).parent.absolute()
     data = pd.read_excel(this_dir / Path("data/XRays.xlsx"))
@@ -113,10 +118,10 @@ if __name__ == "__main__":
 
     for event, date_range in event_dates.items():
         facility = FacilityTimes(data, *date_range)
-        print(
+        logging.info(
             f"The max patients in a {event} interval is {facility.max_patient_count()} at interval {facility.max_interval()}"
         )
-        print(facility.max_interval_patients()[["stMRN"] + date_range])
+        logging.info(facility.max_interval_patients()[["stMRN"] + date_range])
         facility.plot_interval_counts(
             f"max patients at 30 min intervals ({event} times)"
         )
@@ -127,6 +132,6 @@ if __name__ == "__main__":
 
     time_ranges = [(7, 9), (10, 12), (13, 15), (14, 16)]
     for time_range in time_ranges:
-        print(
+        logging.info(
             f"At time range {time_range}, there are {hospital.count_patients_at_range(*time_range)} patients"
         )

@@ -13,7 +13,7 @@ from typing import List, Union
 
 
 class HL7:
-    """HL7 class contains HL7 text record as a dicti
+    """HL7 class contains HL7 text record as a dict
         properties can be further extended for a full parser. 
     """
 
