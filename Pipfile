@@ -9,8 +9,9 @@ verify_ssl = true
 pandas = "*"
 pytest = "*"
 mypy = "*"
-black = "*"
+xlrd = "*"
+matplotlib = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.7"
-
