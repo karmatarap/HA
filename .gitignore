@@ -1,13 +1,16 @@
 *.zip
 *.py[co]
 .vscode
-
+*.xlsx
 coverage.xml
 .coverage
 htmlcov
 *.pyc
 *.pdf
 *.doc
+*.docx
 __pycache__
 .*_cache
 Clinical_HL7_Samples
+ToRead
+*.ipynb_checkpoints
