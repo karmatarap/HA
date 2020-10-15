@@ -1,14 +1,17 @@
-import sys
-import os.path
 import itertools
+from collections import namedtuple
+import logging
 
 import pandas as pd
 import numpy as np
+
 from sklearn import linear_model, preprocessing
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score, recall_score
+
 import matplotlib.pyplot as plt
+
 from typing import Callable, Union, Tuple
 
 
@@ -24,8 +27,7 @@ def create_labels(data: pd.DataFrame):
 class FeatureSelector:
     """ Class to contain feature selection algorithms
         To use this class, models should be defined
-        as a function and return a dict containing:
-        Error, Model and Params,
+        as instances of class Model
         Re-using from HW4
     """
 
@@ -44,7 +46,19 @@ class FeatureSelector:
         otherwise, best is the maximum.
         """
         f = min if _minimum else max
-        return f(results, key=lambda x: x["Error"])
+
+        # checking for multiple models with same error
+        all_best = list(
+            filter(
+                lambda x: x.error is f(results, key=lambda x: x.error).error, results
+            )
+        )
+
+        if len(all_best) > 1:
+            logging.warning("More than one model has best error:")
+            for m in all_best:
+                logging.warning(f"Check: {m.params}, {m.error}")
+        return all_best[0]
 
     def best_subset(self, k: int) -> dict:
         "Returns best model of any k parameters"
@@ -78,10 +92,11 @@ class FeatureSelector:
         return models
 
 
+ModelAttrs = namedtuple("ModelAttrs", ["error", "params", "model"])
+
+
 class Model:
-    """Throwaway class to help reduce boiler plate
-    Dict is returned to fit the interface of FeatureSelector
-    """
+    """Class to handle model fitting"""
 
     def __init__(self, model=None, metric=None, **kwargs):
         self._model = model
@@ -95,11 +110,11 @@ class Model:
         m = self._model(**self.kwargs)
         m.fit(train_X, train_y)
         Y_hat = m.predict(test_X)
-        error = self.metric(test_y, Y_hat)
-        return {"Error": error, "Model": m, "Params": train_X.columns.values}
+        return ModelAttrs(self.metric(test_y, Y_hat), train_X.columns.values, m)
 
 
 if __name__ == "__main__":
+    logger = logging.basicConfig(level=logging.INFO)
     data = pd.read_excel("Data/data.xlsx")
 
     X, Y = create_labels(data)
@@ -109,32 +124,36 @@ if __name__ == "__main__":
     log_acc = Model(model=linear_model.LogisticRegression, metric=accuracy_score)
 
     # Find the best 3 feature subset with highest accuracy
-    model_best_acc = FeatureSelector(log_acc, X, Y, minimum=False).best_subset(k=3)
-    print(
-        f"Best accuracy model was: {model_best_acc['Error']} using features: {model_best_acc['Params']}"
+    model_best_acc = FeatureSelector(log_acc, X, Y, minimum=False).forward_selection(
+        n=3
     )
-    assert round(model_best_acc["Error"], 2) == 0.96  # checkpoint
+    for i, m in enumerate(model_best_acc):
+        logging.info(
+            f"Best accuracy model with {i+1} features was: {m.error} using features: {m.params}"
+        )
+    assert round(m.error, 2) == 0.96  # checkpoint
 
     # Question 6
     log_rec = Model(model=linear_model.LogisticRegression, metric=recall_score)
     # Return model with highest recall
     log_rec_r = FeatureSelector(log_rec, X, Y, minimum=False)
     # Find the best 2 feature subset
-    model_best_recall = log_rec_r.best_subset(k=2)
-    print(
-        f"Best recall model was: {model_best_recall['Error']} using features: {model_best_recall['Params']}"
-    )
-    assert round(model_best_recall["Error"], 4) == 0.9198  # checkpoint
+    model_best_recall = log_rec_r.forward_selection(n=2)
+    for i, m in enumerate(model_best_recall):
+        logging.info(
+            f"Best recall model with {i+1} features was: {m.error} using features: {m.params}"
+        )
+    assert round(m.error, 4) == 0.9198  # checkpoint
 
     # Question 7
     tree_model = Model(DecisionTreeClassifier, accuracy_score, max_leaf_nodes=3)
     classifier = tree_model(X, Y)
-    print(f"Decision Tree accuracy: {classifier['Error']}")
-    assert round(classifier["Error"], 4) == 0.9402  # Checkpoint
+    logging.info(f"Decision Tree accuracy: {classifier.error}")
+    assert round(classifier.error, 4) == 0.9402  # Checkpoint
 
     fig = plt.figure(figsize=(15, 10))
     _ = plot_tree(
-        classifier["Model"],
+        classifier.model,
         feature_names=list(X.columns),
         class_names=["B", "M"],
         rounded=True,
@@ -156,10 +175,10 @@ if __name__ == "__main__":
     # We should get a perfect match (accuracy=1) and the class should always predict "Benign"
     dt_clf = Model(DecisionTreeClassifier, accuracy_score, max_leaf_nodes=3)
     dt_m = dt_clf(X, Y, test_X, test_Y)
-    assert dt_m["Error"] == 1
+    assert dt_m.error == 1
     assert all(test_Y == [0])  # all are benign
 
     # Question 8
     rf_clf = Model(RandomForestClassifier, accuracy_score, n_estimators=10, max_depth=3)
     rf_m = rf_clf(X, Y)
-    print(f"Random forest accuracy: {rf_m['Error']}")
+    logging.info(f"Random forest accuracy: {rf_m.error}")
