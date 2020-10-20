@@ -60,11 +60,11 @@ class FeatureSelector:
                 logging.warning(f"Check: {m.params}, {m.error}")
         return all_best[0]
 
-    def best_subset(self, k: int) -> dict:
-        "Returns best model of any k parameters"
+    def best_subset(self, n: int) -> dict:
+        "Returns best model of any n parameters"
         results = [
             self.model(self.X[list(params)], self.y)
-            for params in itertools.combinations(self.X.columns, k)
+            for params in itertools.combinations(self.X.columns, n)
         ]
         return FeatureSelector.best_model(results, _minimum=self.minimum)
 
