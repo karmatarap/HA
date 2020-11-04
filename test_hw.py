@@ -69,7 +69,18 @@ OBX|1|SN|35659-2^Age at Specimen Collection^LN^AGE^AGE^L^2.40^V1||=^3|a^Year^UCU
     def test_segment_ids(self):
         self.assertEqual(
             list(self.patient.hl7_dict.keys()),
-            ["MSH", "SFT", "PID", "NTE", "NK1", "PV1", "ORC", "OBR", "OBX", "SPM",],
+            [
+                "MSH",
+                "SFT",
+                "PID",
+                "NTE",
+                "NK1",
+                "PV1",
+                "ORC",
+                "OBR",
+                "OBX",
+                "SPM",
+            ],
         )
 
     def test_sex(self):

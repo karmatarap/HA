@@ -25,10 +25,10 @@ def create_labels(data: pd.DataFrame):
 
 
 class FeatureSelector:
-    """ Class to contain feature selection algorithms
-        To use this class, models should be defined
-        as instances of class Model
-        Re-using from HW4
+    """Class to contain feature selection algorithms
+    To use this class, models should be defined
+    as instances of class Model
+    Re-using from HW4
     """
 
     def __init__(

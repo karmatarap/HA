@@ -32,7 +32,7 @@ class FacilityTimes:
 
     @staticmethod
     def add_date_features(df: pd.DataFrame) -> pd.DataFrame:
-        """ Add Date Features of interest: 
+        """Add Date Features of interest:
         Add Durations between visits
         Split datetimes to date and time portions
         """
@@ -42,7 +42,7 @@ class FacilityTimes:
         return df
 
     def count_patients_at_range(self, hour_start: int, hour_end: int) -> int:
-        """ Returns count of patients within provided range
+        """Returns count of patients within provided range
 
         For ranges A->B and C->D, overlapping intervals
             must have property: Not(B<=C or A>=D)

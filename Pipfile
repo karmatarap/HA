@@ -12,6 +12,7 @@ mypy = "*"
 xlrd = "*"
 matplotlib = "*"
 sklearn = "*"
+pydicom = "*"
 
 [requires]
 python_version = "3.7"

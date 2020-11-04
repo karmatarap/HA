@@ -4,10 +4,10 @@ from typing import Callable, Union
 
 
 class FeatureSelector:
-    """ Class to contain feature selection algorithms
-        To use this class, models should be defined
-        as a function and return a dict containing:
-        Error, Model and Params
+    """Class to contain feature selection algorithms
+    To use this class, models should be defined
+    as a function and return a dict containing:
+    Error, Model and Params
     """
 
     def __init__(
